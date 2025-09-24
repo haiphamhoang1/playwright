@@ -1,0 +1,16 @@
+[
+    {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "gender": "Male",
+        "phone": "9234561989",
+        "dateOfBirth": "15 Aug 2000",
+        "subjects": "Maths",
+        "hobbies": ["Sports", "Reading"],
+        "picture": "test/formUpload/dalat.txt",
+        "address": "123 Main St, Anytown",
+        "state": "NCR",
+        "city": "Noida"
+    }
+]

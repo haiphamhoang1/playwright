@@ -1,0 +1,15 @@
+
+{
+    "fields": {
+        "project": {
+            "id": "10114"
+        },
+        "summary": "Automation Test Execution",
+        "issuetype": {
+            "id": "10157"
+        }
+    },
+    "xrayFields": {
+        "testPlanKey": "PTF-2451"
+    }
+}

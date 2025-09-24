@@ -1,0 +1,75 @@
+workflow:
+  name: "Automation regression - ${TEST_ENV}"
+
+stages:
+  - test
+variables:
+    BROWSER_VAR:
+      value: "chromium"
+      options:
+        - "api"
+        - "chromium"
+        - "firefox"
+      description: "For choosing UI test or API test"
+    PROJECT_KEY:
+      value: "PTF"
+      options:
+        - "PTF"
+        - "QA"
+      description: "For choosing which project to publish test results"  
+    TEST_PLAN_KEY: "TP-1234"
+    TEST_ENV:
+      value: "test"
+      options:
+        - "staging"
+        - "test"
+        - "dev"
+      description: "For choosing testing environment"
+    PUBLISH_RESULTS:
+      value: "No"
+      options:
+        - "No"
+        - "Yes"
+      description: "Controls whether to publish test results (Yes/No)"  
+
+include:
+  - project: 'devops/ci/templates'
+    ref: v2.0
+    file: sonar_scanner_extends.yml
+
+sonar_scan:
+  extends: .sonar_scanner_extends
+  stage: test
+  before_script:
+  - echo "Scanning project $SONAR_PROJECT_KEY in host $SONAR_HOST_URL"
+  rules:
+  - if: $CI_PIPELINE_SOURCE != "schedule"
+
+
+run_playwright_tests:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.46.0-focal
+  script:
+    - npm i
+    - npx eslint
+    - npx playwright install-deps
+    - export ENVIRONMENT=${TEST_ENV}
+    - npx playwright test --project=${BROWSER_VAR}
+  after_script:
+    - |
+      if [ "$CI_PIPELINE_SOURCE" == "schedule" ] || [ "$PUBLISH_RESULTS" == "Yes" ]; then
+        node ./core/integration/xray.js xray-report.xml issueField.json ${XRAY_CLIENT_ID} ${XRAY_SECRET_ID} ${TEST_PLAN_KEY}
+      fi
+
+  artifacts:
+    when: always
+    paths:
+      - test-results/
+      - playwright-report/
+      - xray-report.xml
+    expire_in: 60 days
+    reports:
+      junit: results.xml
+
+
+
